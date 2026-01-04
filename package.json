@@ -1,7 +1,7 @@
 {
   "name": "math-tutor-ai",
   "version": "1.0.0",
-  "description": "星云智教 - AI数学实时辅导系统",
+  "description": "星云智教 - 具身智能数学辅导",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -2,7 +2,7 @@
   <ConfigPanel v-if="!hasConfig" />
   <div v-else class="app">
     <header class="app-header">
-      <h1>星云智教 - AI数学实时辅导系统</h1>
+      <h1>星云智教 - 具身智能数学辅导</h1>
       <p class="subtitle">让AI拥有"老师的身体与对话能力"</p>
       <button @click="handleReconfigure" class="config-btn" title="重新配置">
         ⚙️
