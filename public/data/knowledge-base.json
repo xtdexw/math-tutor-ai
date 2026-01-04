@@ -1,0 +1,185 @@
+{
+  "knowledge_points": [
+    {
+      "id": "pythagorean_theorem",
+      "name": "勾股定理",
+      "categoryId": "plane",
+      "difficulty": "basic",
+      "content": {
+        "definition": "直角三角形两直角边的平方和等于斜边的平方",
+        "formula": "a² + b² = c²",
+        "explanation": "在任何一个直角三角形中，两条直角边的平方之和一定等于斜边的平方。这个定理是几何学中最基本、最重要的定理之一。",
+        "visual_aids": ["pythagoras_1.png"],
+        "related_theorems": ["sin_theorem", "cos_theorem"]
+      }
+    },
+    {
+      "id": "sin_theorem",
+      "name": "正弦定理",
+      "categoryId": "plane",
+      "difficulty": "medium",
+      "content": {
+        "definition": "在任意三角形中，各边和它所对角的正弦的比相等",
+        "formula": "a/sinA = b/sinB = c/sinC = 2R",
+        "explanation": "正弦定理揭示了三角形中边与角的关系，其中R是外接圆半径。它适用于解决三角形的边角关系问题。",
+        "related_theorems": ["cos_theorem", "pythagorean_theorem"]
+      }
+    },
+    {
+      "id": "cos_theorem",
+      "name": "余弦定理",
+      "categoryId": "plane",
+      "difficulty": "medium",
+      "content": {
+        "definition": "三角形任意一边的平方等于其他两边平方的和减去这两边与他们夹角的余弦的积的两倍",
+        "formula": "c² = a² + b² - 2ab·cosC",
+        "explanation": "余弦定理是勾股定理的推广，可以用于解决任意三角形的边角关系问题。",
+        "related_theorems": ["sin_theorem", "pythagorean_theorem"]
+      }
+    },
+    {
+      "id": "quadratic_formula",
+      "name": "求根公式",
+      "categoryId": "function",
+      "difficulty": "basic",
+      "content": {
+        "definition": "一元二次方程的求根公式用于解ax² + bx + c = 0类型的方程",
+        "formula": "x = (-b ± √(b²-4ac)) / 2a",
+        "explanation": "通过求根公式，我们可以直接计算出二次方程的两个根。判别式Δ=b²-4ac决定了根的性质。",
+        "related_theorems": ["vieta_theorem"]
+      }
+    },
+    {
+      "id": "quadratic_function",
+      "name": "二次函数",
+      "categoryId": "function",
+      "difficulty": "basic",
+      "content": {
+        "definition": "二次函数是最高次项为二次的多项式函数",
+        "formula": "y = ax² + bx + c (a≠0)",
+        "explanation": "二次函数的图像是抛物线，a决定开口方向和大小，顶点坐标为(-b/2a, (4ac-b²)/4a)。",
+        "related_theorems": ["quadratic_formula"]
+      }
+    },
+    {
+      "id": "exponential_function",
+      "name": "指数函数",
+      "categoryId": "function",
+      "difficulty": "medium",
+      "content": {
+        "definition": "指数函数是以常数e或正数为底的函数",
+        "formula": "y = aˣ (a>0, a≠1)",
+        "explanation": "指数函数在金融、生物、物理等领域有广泛应用，描述快速增长或衰减的过程。",
+        "related_theorems": ["logarithmic_function"]
+      }
+    },
+    {
+      "id": "logarithmic_function",
+      "name": "对数函数",
+      "categoryId": "function",
+      "difficulty": "medium",
+      "content": {
+        "definition": "对数函数是指数函数的反函数",
+        "formula": "y = logₐx (a>0, a≠1)",
+        "explanation": "对数函数将乘法转换为加法，是计算尺和许多科学计算的基础。",
+        "related_theorems": ["exponential_function"]
+      }
+    },
+    {
+      "id": "vieta_theorem",
+      "name": "韦达定理",
+      "categoryId": "function",
+      "difficulty": "medium",
+      "content": {
+        "definition": "描述一元二次方程根与系数关系的定理",
+        "formula": "x₁+x₂ = -b/a, x₁·x₂ = c/a",
+        "explanation": "韦达定理揭示了方程的根与系数之间的内在联系，在解方程和分析函数性质时很有用。",
+        "related_theorems": ["quadratic_formula"]
+      }
+    },
+    {
+      "id": "derivative_definition",
+      "name": "导数定义",
+      "categoryId": "calculus",
+      "difficulty": "medium",
+      "content": {
+        "definition": "函数在某一点的导数是函数在该点的瞬时变化率",
+        "formula": "f'(x) = lim(h→0) [f(x+h) - f(x)] / h",
+        "explanation": "导数描述了函数值随自变量变化的快慢程度，几何上表示曲线切线的斜率。",
+        "related_theorems": ["integral_definition"]
+      }
+    },
+    {
+      "id": "integral_definition",
+      "name": "积分定义",
+      "categoryId": "calculus",
+      "difficulty": "medium",
+      "content": {
+        "definition": "定积分表示函数在区间上的累积效果",
+        "formula": "∫[a,b] f(x)dx = F(b) - F(a)",
+        "explanation": "积分是导数的逆运算，在几何上表示曲线与坐标轴围成的面积。",
+        "related_theorems": ["derivative_definition"]
+      }
+    },
+    {
+      "id": "cubic_volume",
+      "name": "立方体体积",
+      "categoryId": "solid",
+      "difficulty": "basic",
+      "content": {
+        "definition": "立方体的体积等于边长的三次方",
+        "formula": "V = a³",
+        "explanation": "立方体是最简单的正多面体，六个面都是相等的正方形。",
+        "related_theorems": []
+      }
+    },
+    {
+      "id": "sphere_volume",
+      "name": "球体体积",
+      "categoryId": "solid",
+      "difficulty": "medium",
+      "content": {
+        "definition": "球体的体积与半径的三次方成正比",
+        "formula": "V = (4/3)πr³",
+        "explanation": "球是空间中到定点距离等于定长的所有点组成的图形。",
+        "related_theorems": ["sphere_area"]
+      }
+    },
+    {
+      "id": "sphere_area",
+      "name": "球体表面积",
+      "categoryId": "solid",
+      "difficulty": "medium",
+      "content": {
+        "definition": "球体的表面积与半径的平方成正比",
+        "formula": "S = 4πr²",
+        "explanation": "球体表面积公式可以通过积分推导得到。",
+        "related_theorems": ["sphere_volume"]
+      }
+    },
+    {
+      "id": "function_derivative_rules",
+      "name": "导数运算法则",
+      "categoryId": "calculus",
+      "difficulty": "advanced",
+      "content": {
+        "definition": "导数的四则运算法则",
+        "formula": "(u±v)' = u'±v', (uv)' = u'v+uv', (u/v)' = (u'v-uv')/v²",
+        "explanation": "这些法则帮助我们计算复杂函数的导数。",
+        "related_theorems": ["chain_rule"]
+      }
+    },
+    {
+      "id": "chain_rule",
+      "name": "链式法则",
+      "categoryId": "calculus",
+      "difficulty": "advanced",
+      "content": {
+        "definition": "复合函数的求导法则",
+        "formula": "[f(g(x))]' = f'(g(x))·g'(x)",
+        "explanation": "链式法则是微积分中最重要的求导法则之一，用于处理复合函数。",
+        "related_theorems": ["function_derivative_rules"]
+      }
+    }
+  ]
+}
