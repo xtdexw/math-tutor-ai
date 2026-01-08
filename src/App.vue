@@ -20,7 +20,7 @@
     </main>
 
     <footer class="app-footer">
-      <p>基于魔珐星云具身驱动SDK + DeepSeek-V3.2</p>
+      <p>基于魔珐星云具身驱动SDK + Qwen3-VL（支持图片分析）</p>
     </footer>
 
     <!-- 自定义确认弹窗 -->
@@ -98,11 +98,12 @@ const handleReconfigure = () => {
   )
 }
 
-// 添加消息的方法
-const addMessage = (role, content) => {
+// 添加消息的方法（支持图片）
+const addMessage = (role, content, image = null) => {
   messages.value.push({
     role,
     content,
+    image,  // 图片 URL（可选）
     time: Date.now()
   })
 }
@@ -113,35 +114,49 @@ provide('addMessage', addMessage)
 
 onMounted(() => {
   checkConfig()
+  // 确保body样式正确（修复ConfigPanel可能遗留的全局样式问题）
+  document.body.style.overflow = 'hidden'
+  document.body.style.height = '100vh'
+  document.body.style.width = '100%'
 })
 </script>
 
 <style>
+/* ========================================
+   全局重置
+   ======================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  height: 100vh;
-  overflow: hidden;
 }
 
+/* ========================================
+   App 容器 - 占满整个视口
+   ======================================== */
 .app {
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
 }
 
 .app-header {
+  flex-shrink: 0;
   text-align: center;
   padding: 12px 20px;
   color: white;
-  flex-shrink: 0;
   position: relative;
 }
 
@@ -175,23 +190,25 @@ body {
   opacity: 0.9;
 }
 
+/* ========================================
+   主内容区 - Flexbox 布局（40% / 60%）
+   ======================================== */
 .app-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1600px;
-  margin: 0 auto;
   width: 100%;
+  height: calc(100vh - 120px); /* 减去顶部标题和底部信息 */
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
   overflow: hidden;
-  min-height: 0;
 }
 
+/* 左侧数字人区域：40% 宽度 - 突出具身智能体验 */
 .avatar-section {
+  flex: 0 0 40%;
+  min-width: 500px;
   display: flex;
   align-items: stretch;
-  justify-content: center;
   overflow: hidden;
   min-height: 0;
 }
@@ -201,33 +218,51 @@ body {
   height: 100%;
 }
 
+/* 右侧对话框区域：60% 宽度 */
 .interaction-section {
+  flex: 1;
   display: flex;
   align-items: stretch;
   overflow: hidden;
   min-height: 0;
 }
 
+.interaction-section > * {
+  width: 100%;
+  height: 100%;
+}
+
 .app-footer {
+  flex-shrink: 0;
   text-align: center;
   padding: 10px;
   color: white;
   font-size: 11px;
   opacity: 0.8;
-  flex-shrink: 0;
 }
 
 @media (max-width: 1024px) {
   .app-main {
-    grid-template-columns: 1fr;
+    height: auto;
+    flex-direction: column;
   }
 
   .avatar-section {
+    flex: 0 0 auto;
     min-height: 400px;
+    width: 100%;
+  }
+
+  .interaction-section {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 500px;
   }
 }
 
-/* Modal Overlay */
+/* ========================================
+   Modal Overlay
+   ======================================== */
 .modal-overlay {
   position: fixed;
   top: 0;

@@ -172,14 +172,13 @@ onMounted(async () => {
 
 <style scoped>
 .knowledge-selector {
-  flex: 1;  /* 平分可用空间 */
-  min-height: 0;  /* 允许flex子元素缩小 */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
 }
 
 .category-tabs {
@@ -189,10 +188,11 @@ onMounted(async () => {
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .category-tab {
-  padding: 8px 16px;
+  padding: 6px 14px;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
@@ -214,9 +214,10 @@ onMounted(async () => {
 }
 
 .knowledge-list {
-  max-height: 250px;
+  max-height: 280px;
   overflow-y: auto;
-  padding: 12px;
+  padding: 16px;
+  flex-shrink: 0;
 }
 
 .knowledge-item {
@@ -278,6 +279,7 @@ onMounted(async () => {
   overflow-y: auto;
   padding: 20px;
   border-top: 1px solid #e2e8f0;
+  min-height: 0;
 }
 
 .knowledge-detail h4 {
@@ -288,20 +290,21 @@ onMounted(async () => {
 }
 
 .definition {
-  font-size: 14px;
+  font-size: 15px;
   color: #4a5568;
-  line-height: 1.6;
-  margin-bottom: 12px;
+  line-height: 1.7;
+  margin-bottom: 16px;
 }
 
 .formula {
-  padding: 12px;
+  padding: 12px 16px;
   background: #f8fafc;
   border-radius: 8px;
   font-family: 'Courier New', monospace;
-  font-size: 13px;
+  font-size: 14px;
   color: #667eea;
   margin-bottom: 16px;
+  line-height: 1.6;
 }
 
 .learn-btn {

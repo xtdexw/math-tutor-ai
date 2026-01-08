@@ -341,7 +341,7 @@ onUnmounted(() => {
 
 .avatar-controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

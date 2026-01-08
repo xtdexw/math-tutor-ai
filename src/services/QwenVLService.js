@@ -1,5 +1,6 @@
 /**
- * DeepSeek-V3.2 模型服务
+ * Qwen3-VL 多模态模型服务
+ * 支持文本 + 图片的数学题目解析
  * 魔搭社区 API: https://api-inference.modelscope.cn/v1
  */
 
@@ -10,15 +11,16 @@ const SYSTEM_PROMPT = `你是一位专业的数学老师，名字叫"星云老�
    - 循序渐进，不直接给答案，而是引导学生思考
    - 鼓励为主，即使学生答错了也要给予正面反馈
 
-2. 回答结构：
+2. 图片解题能力：
+   - 能够准确识别图片中的数学题目（包括公式、图形、图表）
+   - 逐步分析题目条件，找出解题思路
+   - 详细展示解题步骤，每一步都说明理由
+   - 如果图片模糊，会告诉学生需要更清晰的图片
+
+3. 回答结构：
    - 先简单总结问题的核心
    - 然后逐步展开讲解
    - 最后给出总结和记忆技巧
-
-3. 特殊指令：
-   - 当讲解定理时，会提示"可以看图"（触发Widget展示）
-   - 当讲解公式时，会逐步推导，每一步都说明理由
-   - 当学生做错题时，先肯定正确的部分，再指出错误
 
 4. 格式要求：
    - 使用自然口语化表达
@@ -72,11 +74,11 @@ function cleanText(text) {
   return cleaned
 }
 
-class DeepSeekService {
+class QwenVLService {
   constructor() {
     this.baseURL = 'https://api-inference.modelscope.cn/v1'
     this.apiKey = this._loadApiKey()
-    this.model = 'deepseek-ai/DeepSeek-V3.2'
+    this.model = 'Qwen/Qwen3-VL-235B-A22B-Instruct'
     this.conversationHistory = []
   }
 
@@ -88,12 +90,35 @@ class DeepSeekService {
       const savedConfig = localStorage.getItem('app_config')
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig)
-        return parsed.deepseek?.apiKey || ''
+        // 兼容旧配置（deepseek）和新配置（qwen）
+        return parsed.qwen?.apiKey || parsed.deepseek?.apiKey || ''
       }
     } catch (e) {
       console.error('Failed to load API key:', e)
     }
     return ''
+  }
+
+  /**
+   * 构建多模态消息内容
+   * @param {string} text - 文本内容
+   * @param {string} imageUrl - 图片 URL（可选）
+   * @returns {Array} - 多模态内容数组
+   */
+  _buildContent(text, imageUrl = null) {
+    const content = [
+      { type: 'text', text: text }
+    ]
+
+    if (imageUrl) {
+      // 图片放在文本前面，让模型先看到图片
+      content.unshift({
+        type: 'image_url',
+        image_url: { url: imageUrl }
+      })
+    }
+
+    return content
   }
 
   /**
@@ -104,19 +129,33 @@ class DeepSeekService {
   }
 
   /**
-   * 流式调用DeepSeek-V3.2
+   * 流式调用 Qwen3-VL（支持图片）
    * @param {string} userMessage - 用户消息
-   * @param {Function} onThinking - 思考过程回调 (reasoning_content)
-   * @param {Function} onContent - 内容输出回调 (content)
+   * @param {string} imageUrl - 图片 URL（可选）
+   * @param {Function} onThinking - 思考过程回调（QwenVL 不支持，保留接口兼容）
+   * @param {Function} onContent - 内容输出回调
    * @param {Function} onDone - 完成回调
    * @param {Function} onError - 错误回调
    */
-  async chatStream(userMessage, onThinking, onContent, onDone, onError) {
+  async chatStream(userMessage, imageUrl = null, onThinking, onContent, onDone, onError) {
+    // 构建消息历史（需要转换为多模态格式）
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...this.conversationHistory,
-      { role: 'user', content: userMessage }
+      { role: 'system', content: SYSTEM_PROMPT }
     ]
+
+    // 添加历史对话（纯文本历史保持原样）
+    for (const msg of this.conversationHistory) {
+      messages.push({
+        role: msg.role,
+        content: msg.content  // 历史对话保持纯文本
+      })
+    }
+
+    // 添加当前用户消息（可能包含图片）
+    messages.push({
+      role: 'user',
+      content: this._buildContent(userMessage, imageUrl)
+    })
 
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
@@ -128,22 +167,19 @@ class DeepSeekService {
         body: JSON.stringify({
           model: this.model,
           messages: messages,
-          stream: true,
-          extra_body: {
-            enable_thinking: true
-          }
+          stream: true
+          // 注意：QwenVL 不支持 enable_thinking 参数
         })
       })
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`)
+        const errorText = await response.text()
+        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`)
       }
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
-      let doneThinking = false
-      let fullThinking = ''
       let fullContent = ''
 
       while (true) {
@@ -165,22 +201,11 @@ class DeepSeekService {
               const parsed = JSON.parse(data)
               const delta = parsed.choices?.[0]?.delta
 
-              if (delta) {
-                // 思考过程
-                if (delta.reasoning_content) {
-                  fullThinking += delta.reasoning_content
-                  onThinking?.(delta.reasoning_content)
-                }
-                // 最终答案
-                else if (delta.content) {
-                  if (!doneThinking) {
-                    doneThinking = true
-                  }
-                  // 清理文本，移除表情符号和非法字符
-                  const cleanedContent = cleanText(delta.content)
-                  fullContent += cleanedContent
-                  onContent?.(cleanedContent)
-                }
+              if (delta && delta.content) {
+                // QwenVL 直接返回 content，没有 reasoning_content
+                const cleanedContent = cleanText(delta.content)
+                fullContent += cleanedContent
+                onContent?.(cleanedContent)
               }
             } catch (e) {
               // 忽略解析错误，继续处理下一行
@@ -189,7 +214,7 @@ class DeepSeekService {
         }
       }
 
-      // 保存对话历史
+      // 保存对话历史（只保存文本，不保存图片）
       this.conversationHistory.push(
         { role: 'user', content: userMessage },
         { role: 'assistant', content: fullContent }
@@ -200,10 +225,10 @@ class DeepSeekService {
         this.conversationHistory = this.conversationHistory.slice(-20)
       }
 
-      onDone?.({ thinking: fullThinking, content: fullContent })
+      onDone?.({ content: fullContent })
 
     } catch (error) {
-      console.error('DeepSeek API Error:', error)
+      console.error('QwenVL API Error:', error)
       onError?.(error)
     }
   }
@@ -211,12 +236,22 @@ class DeepSeekService {
   /**
    * 非流式调用（用于后台处理）
    */
-  async chat(userMessage) {
+  async chat(userMessage, imageUrl = null) {
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...this.conversationHistory,
-      { role: 'user', content: userMessage }
+      { role: 'system', content: SYSTEM_PROMPT }
     ]
+
+    for (const msg of this.conversationHistory) {
+      messages.push({
+        role: msg.role,
+        content: msg.content
+      })
+    }
+
+    messages.push({
+      role: 'user',
+      content: this._buildContent(userMessage, imageUrl)
+    })
 
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
@@ -228,10 +263,7 @@ class DeepSeekService {
         body: JSON.stringify({
           model: this.model,
           messages: messages,
-          stream: false,
-          extra_body: {
-            enable_thinking: true
-          }
+          stream: false
         })
       })
 
@@ -254,7 +286,7 @@ class DeepSeekService {
 
       return data
     } catch (error) {
-      console.error('DeepSeek API Error:', error)
+      console.error('QwenVL API Error:', error)
       throw error
     }
   }
@@ -275,4 +307,4 @@ class DeepSeekService {
 }
 
 // 导出单例
-export default new DeepSeekService()
+export default new QwenVLService()

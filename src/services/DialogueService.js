@@ -1,9 +1,9 @@
 /**
  * 对话管理服务
- * 整合 DeepSeekService 和 AvatarService，实现完整的对话流程
+ * 整合 QwenVLService 和 AvatarService，实现完整的对话流程（支持图片）
  */
 
-import DeepSeekService from './DeepSeekService.js'
+import QwenVLService from './QwenVLService.js'
 import AvatarService from './AvatarService.js'
 
 class DialogueService {
@@ -16,11 +16,12 @@ class DialogueService {
   }
 
   /**
-   * 处理用户输入并驱动数字人响应
+   * 处理用户输入并驱动数字人响应（支持图片）
    * @param {string} userInput - 用户输入
+   * @param {string} imageUrl - 图片 URL（可选）
    * @param {object} callbacks - 回调函数集合
    */
-  async handleUserInput(userInput, callbacks = {}) {
+  async handleUserInput(userInput, imageUrl = null, callbacks = {}) {
     if (this.isProcessing) {
       return
     }
@@ -57,13 +58,14 @@ class DialogueService {
       onThinking()
       await AvatarService.think()
 
-      // 3. 调用 DeepSeek 获取回复（流式）
-      await DeepSeekService.chatStream(
+      // 3. 调用 QwenVL 获取回复（流式，支持图片）
+      await QwenVLService.chatStream(
         userInput,
+        imageUrl,  // 图片 URL
 
-        // 思考过程回调
+        // 思考过程回调（QwenVL 不支持，保留兼容）
         (thinkingContent) => {
-          // AI 思考过程
+          // QwenVL 不返回思考过程，此回调保留接口兼容性
         },
 
         // 内容输出回调 - 驱动数字人说话
@@ -73,7 +75,7 @@ class DialogueService {
         },
 
         // 完成回调
-        async ({ thinking, content }) => {
+        async ({ content }) => {  // QwenVL 只返回 content，不返回 thinking
           // 清除定时器
           if (this.speakTimer) {
             clearTimeout(this.speakTimer)
@@ -90,7 +92,7 @@ class DialogueService {
           // 回到待机状态
           await AvatarService.interactiveIdle()
 
-          onDone({ thinking, content })
+          onDone({ content })  // 只传递 content
           this.isProcessing = false
         },
 
@@ -189,8 +191,8 @@ class DialogueService {
     }
 
     // 直接调用 handleUserInput，把知识点作为用户输入
-    // 这样可以复用完整的对话流程，并且知识点学习会加入对话历史
-    await this.handleUserInput(userQuestion, callbacks)
+    // 注意：参数顺序是 userInput, imageUrl, callbacks
+    await this.handleUserInput(userQuestion, null, callbacks)
   }
 
   /**

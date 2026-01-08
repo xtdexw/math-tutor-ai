@@ -23,12 +23,12 @@
 
     <div class="tab-content">
       <!-- 对话面板 -->
-      <div v-show="activeTab === 'chat'" class="tab-pane">
+      <div v-show="activeTab === 'chat'" class="tab-pane panel-content">
         <ChatPanel />
       </div>
 
       <!-- 知识点选择器 -->
-      <div v-show="activeTab === 'knowledge'" class="tab-pane">
+      <div v-show="activeTab === 'knowledge'" class="tab-pane panel-content">
         <KnowledgeSelector />
       </div>
     </div>
@@ -111,6 +111,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ========================================
+   TabPanel 容器 - 固定高度
+   ======================================== */
 .tab-panel {
   display: flex;
   flex-direction: column;
@@ -122,8 +125,12 @@ onMounted(() => {
 }
 
 .tab-header {
+  flex-shrink: 0;
   display: flex;
+  width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
 }
 
 .tab-button {
@@ -131,17 +138,22 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  padding: 12px 16px;
   background: transparent;
   border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
   border-bottom: 3px solid transparent;
   position: relative;
+}
+
+.tab-button:last-child {
+  border-right: none;
 }
 
 .tab-button:hover {
@@ -178,6 +190,9 @@ onMounted(() => {
   transform: scale(1.1);
 }
 
+/* ========================================
+   Tab Content - 固定高度容器
+   ======================================== */
 .tab-content {
   flex: 1;
   overflow: hidden;
@@ -185,24 +200,46 @@ onMounted(() => {
 }
 
 .tab-pane {
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 嵌套组件样式覆盖 */
-.tab-pane :deep(.chat-panel),
-.tab-pane :deep(.knowledge-selector) {
+/* ========================================
+   Panel Content - 统一的面板内容样式
+   ======================================== */
+.panel-content {
+  /* 移除子组件的外层样式，让它们填充容器 */
+}
+
+.panel-content :deep(.chat-panel),
+.panel-content :deep(.knowledge-selector) {
   height: 100%;
   border-radius: 0;
   box-shadow: none;
+  margin: 0;
 }
 
-.tab-pane :deep(.chat-panel .chat-header),
-.tab-pane :deep(.knowledge-selector .selector-header) {
+.panel-content :deep(.chat-panel .chat-header),
+.panel-content :deep(.knowledge-selector .selector-header) {
   display: none;
 }
 
-/* 学习历史对话框 */
+.panel-content :deep(.chat-panel) {
+  background: transparent;
+}
+
+.panel-content :deep(.knowledge-selector) {
+  background: transparent;
+}
+
+/* ========================================
+   学习历史对话框
+   ======================================== */
 .history-modal {
   position: fixed;
   top: 0;

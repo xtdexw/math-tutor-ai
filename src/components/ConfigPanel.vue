@@ -57,11 +57,11 @@
           </div>
         </div>
 
-        <!-- DeepSeek配置 -->
+        <!-- AI模型配置 -->
         <div class="config-section">
           <h2>
             <span class="icon">🧠</span>
-            DeepSeek-V3.2 配置
+            Qwen3-VL 配置（支持图片分析）
           </h2>
 
           <div class="form-group">
@@ -76,6 +76,7 @@
               required
               class="form-input"
             />
+            <small class="form-hint">兼容原有配置，用于调用 Qwen3-VL 多模态模型</small>
           </div>
         </div>
 
@@ -275,7 +276,7 @@ const handleSave = async () => {
     }
 
     if (!config.value.deepseek.apiKey) {
-      showAlertDialog('配置不完整', '请填写 DeepSeek API Key')
+      showAlertDialog('配置不完整', '请填写 AI 模型 API Key')
       return
     }
 
